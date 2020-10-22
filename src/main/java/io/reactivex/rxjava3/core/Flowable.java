@@ -11982,6 +11982,28 @@ public abstract class Flowable<@NonNull T> implements Publisher<T> {
     }
 
     /**
+     * @param <R> the output type
+     * @param predicate a function that evaluates each item emitted by the current {@code Flowable}.
+     *                  If it returns true ifMapper will be execute for current item, else elseMapper will be execute.
+     * @param ifMapper a function to apply to each item emitted by the current {@code Flowable} if predicate return true.
+     * @param elseMapper   a function to apply to each item emitted by the current {@code Flowable} if predicate return false.
+     * @return the new {@code Flowable} instance
+     * @throws NullPointerException if {@code ifMapper} or {@code elseMapper} is {@code null}
+     */
+    @CheckReturnValue
+    @NonNull
+    @BackpressureSupport(BackpressureKind.PASS_THROUGH)
+    @SchedulerSupport(SchedulerSupport.NONE)
+    public final <@NonNull R> Flowable<R> mapIf(Predicate<? super T> predicate,
+        @NonNull Function<? super T, ? extends R> ifMapper,
+        @NonNull Function<? super T, ? extends R> elseMapper) {
+        Objects.requireNonNull(ifMapper, "ifMapper is null");
+        Objects.requireNonNull(elseMapper, "elseMapper is null");
+        Objects.requireNonNull(predicate, "Predicate is null");
+        return RxJavaPlugins.onAssembly(new FlowableMapIf<>(this, ifMapper, elseMapper, predicate));
+    }
+
+    /**
      * Returns a {@code Flowable} that represents all of the emissions <em>and</em> notifications from the current
      * {@code Flowable} into emissions marked with their original types within {@link Notification} objects.
      * <p>
